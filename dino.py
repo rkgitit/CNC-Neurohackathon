@@ -68,15 +68,15 @@ def extract_features(window):
 # ====== BrainFlow Setup ======
 params = BrainFlowInputParams()
 params.serial_port = "COM4"  # ⚠️ Update this to your actual COM port
-board = BoardShim(BoardIds.CYTON_BOARD.value, params)
+board = BoardShim(BoardIds.CYTON_BOARD.v    alue, params)
 
 board.prepare_session()
 board.start_stream()
 
-# ====== Dino Game Setup ======
+# ======    Dino Game Setup ======
 print("Launching Chrome  game...")
 game = "chrome://dino"
-#launch_game("chrome://dino")
+#launch_gam         e("chrome://dino")
 launch_game(game)
 print("\n🧠 Real-time EEG classification started. Press Ctrl+C to stop.")
 
