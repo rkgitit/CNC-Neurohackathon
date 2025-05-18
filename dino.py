@@ -85,18 +85,16 @@ eeg_channels = BoardShim.get_eeg_channels(BoardIds.CYTON_BOARD.value)
 
 try:
     while True:
-        data = board.get_current_board_data(num_samples)
-        eeg_data = data[eeg_channels, :].T
+        raw_data = board.get_current_board_data(window_size)
+        eeg_window = raw_data[eeg_channels, :].T
 
-        # Apply bandpass filter
-        eeg_data = bandpass_filter(eeg_data, fs=sampling_rate)
+        # MATCH TRAINING CONDITIONS:
+        eeg_window = eeg_window - np.mean(eeg_window, axis=0)         # Remove DC offset
+        eeg_window = bandpass_filter(eeg_window, fs=sampling_rate)    # Bandpass filter
 
-        # Extract features
-        feats = extract_features(eeg_data)
-        feats_vec = vec.transform([feats])
-
-        # Predict class
-        prediction = clf.predict(feats_vec)[0]
+        feats = extract_features(eeg_window)
+        X_live = vec.transform([feats]).toarray()
+        prediction = clf.predict(X_live)[0]
         print("Predicted:", prediction)
 
         # Control Dino Game
