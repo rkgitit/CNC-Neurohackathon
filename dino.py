@@ -68,7 +68,8 @@ params = BrainFlowInputParams()
 params.serial_port = "COM4"  # ⚠️ Update this to your actual COM port
 board = BoardShim(BoardIds.CYTON_BOARD.value, params)
 
-                board.start_stream()
+board.prepare_session()
+board.start_stream()
 
 # ====== Dino Game Setup ======
 print("Launching Chrome Dino game...")
