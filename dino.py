@@ -10,12 +10,11 @@ from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from scipy.signal import butter, lfilter
 import pyautogui
 
-# Import your custom Dino game launcher
-from dinowork import launch_game
+from dinowork import launch_game  # Your custom game launcher
 
 # ====== Load & Train Model on Stored EEG Data ======
-X_df = pd.read_csv("eeg_dataset_input2.csv")
-y_df = pd.read_csv("eeg_labels2.csv")
+X_df = pd.read_csv("eeg_acc_dataset_input.csv")
+y_df = pd.read_csv("eeg_acc_labels.csv")
 y = y_df['label'] if 'label' in y_df.columns else y_df.iloc[:, 0]
 
 def extract_features_from_df(X_array):
@@ -65,7 +64,7 @@ def extract_features(window):
 
 # ====== BrainFlow Setup ======
 params = BrainFlowInputParams()
-params.serial_port = "COM4"  # ⚠️ Update this for your machine
+params.serial_port = "COM4"  # ⚠️ Update this to your actual COM port
 board = BoardShim(BoardIds.CYTON_BOARD.value, params)
 
 board.prepare_session()
@@ -74,7 +73,6 @@ board.start_stream()
 # ====== Dino Game Setup ======
 print("Launching Chrome Dino game...")
 launch_game("chrome://dino")
-game_started = True
 
 print("\n🧠 Real-time EEG classification started. Press Ctrl+C to stop.")
 
@@ -85,12 +83,12 @@ eeg_channels = BoardShim.get_eeg_channels(BoardIds.CYTON_BOARD.value)
 
 try:
     while True:
-        raw_data = board.get_current_board_data(window_sec)
+        raw_data = board.get_current_board_data(num_samples)
         eeg_window = raw_data[eeg_channels, :].T
 
-        # MATCH TRAINING CONDITIONS:
-        eeg_window = eeg_window - np.mean(eeg_window, axis=0)         # Remove DC offset
-        eeg_window = bandpass_filter(eeg_window, fs=sampling_rate)    # Bandpass filter
+        # Match preprocessing
+        eeg_window = eeg_window - np.mean(eeg_window, axis=0)  # Remove DC
+        eeg_window = bandpass_filter(eeg_window, fs=sampling_rate)
 
         feats = extract_features(eeg_window)
         X_live = vec.transform([feats])
@@ -99,13 +97,13 @@ try:
 
         # Control Dino Game
         if prediction == "up_nod":
-            pyautogui.press("space")  # Jump
+            pyautogui.press("space")
         elif prediction == "left_nod":
-            pyautogui.keyDown("down")  # Duck
+            pyautogui.keyDown("down")
             time.sleep(0.3)
             pyautogui.keyUp("down")
 
-        time.sleep(0.2)  # Buffer between windows
+        time.sleep(0.2)
 
 except KeyboardInterrupt:
     print("\n🛑 Stopping real-time classification...")
