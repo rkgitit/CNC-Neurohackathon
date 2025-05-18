@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report
 from brainflow.board_shim import BoardShim, BrainFlowInputParams, BoardIds
 from scipy.signal import butter, lfilter
 import pyautogui
+import joblib
 
 from dinowork import launch_game  # Your custom game launcher
 
@@ -33,8 +34,8 @@ def extract_features_from_df(X_array):
 X_array = X_df.values
 features_dicts = extract_features_from_df(X_array)
 
-vec = DictVectorizer(sparse=False)
-X_vec = vec.fit_transform(features_dicts)
+vec = joblib.load('vectorizer.pkl')
+X_vec = vec.transform(features_dicts)
 
 clf = RandomForestClassifier(n_estimators=100, random_state=42)
 X_train, X_test, y_train, y_test = train_test_split(X_vec, y, test_size=0.2, random_state=42)
@@ -67,8 +68,7 @@ params = BrainFlowInputParams()
 params.serial_port = "COM4"  # ⚠️ Update this to your actual COM port
 board = BoardShim(BoardIds.CYTON_BOARD.value, params)
 
-board.prepare_session()
-board.start_stream()
+                board.start_stream()
 
 # ====== Dino Game Setup ======
 print("Launching Chrome Dino game...")
