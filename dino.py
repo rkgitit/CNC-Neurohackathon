@@ -14,8 +14,8 @@ import joblib
 from dinowork import launch_game  # Your custom game launcher
 
 # ====== Load & Train Model on Stored EEG Data ======
-X_df = pd.read_csv("eeg_dataset_input2.csv")
-y_df = pd.read_csv("eeg_labels2.csv")
+X_df = pd.read_csv("eeg_dataset_input_jaw_up.csv")
+y_df = pd.read_csv("eeg_labels_jaw_up.csv")
 y = y_df['label'] if 'label' in y_df.columns else y_df.iloc[:, 0]
 
 # def extract_features_from_df(X_array):
@@ -34,7 +34,7 @@ y = y_df['label'] if 'label' in y_df.columns else y_df.iloc[:, 0]
 X_array = X_df.values
 # features_dicts = extract_features_from_df(X_array)
 
-vec = joblib.load('vectorizer.pkl')
+vec = joblib.load('vectorizer1.pkl')
 # X_vec = vec.transform(features_dicts)                                                               
 
 clf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -106,7 +106,7 @@ try:
             # time.sleep(0.3)
             # pyautogui.keyUp("down")
 
-        time.sleep(0.1)
+        # time.sleep(0.1)                                                                                   
 
 except KeyboardInterrupt:
     print("\n🛑 Stopping real-time classification...")
