@@ -74,15 +74,20 @@ board.prepare_session()
 board.start_stream()
 
 # ====== Dino Game Setup ======
-print("Launching Chrome Dino game...")
-launch_game("chrome://dino")
-
+print("Launching Chrome  game...")
+game = "chrome://dino"
+#launch_game("chrome://dino")
+launch_game(game)
 print("\n🧠 Real-time EEG classification started. Press Ctrl+C to stop.")
 
 sampling_rate = BoardShim.get_sampling_rate(BoardIds.CYTON_BOARD.value)
 window_sec = 1
 num_samples = sampling_rate * window_sec
 eeg_channels = BoardShim.get_eeg_channels(BoardIds.CYTON_BOARD.value)
+
+last_action_time = 0
+cooldown = 0.4
+prev_prediction = 'nothing'
 
 try:
     while True:
@@ -96,17 +101,32 @@ try:
         feats = extract_features(eeg_window)
         X_live = vec.transform([feats])
         prediction = clf.predict(X_live)[0]
-        print("Predicted:", prediction)
+        # print("Predicted:", prediction)
+        # and current_time - last_action_time > cooldown
 
-        # Control Dino Game
-        if prediction == "up_nod":
-            pyautogui.press("space")
-        elif prediction == "left_nod":
-            pyautogui.press("down")
-            # time.sleep(0.3)
-            # pyautogui.keyUp("down")
-
-        # time.sleep(0.1)                                                                                   
+        current_time = time.time()
+        if game == "chrome://dino":
+            if (prev_prediction == 'nothing' and prediction == "up_nod"):
+                print("JUMP")
+                pyautogui.press("space")
+                last_action_time = current_time
+                # time.sleep(0.1)
+            elif prev_prediction == 'nothing' and prediction == "left_nod":
+                pyautogui.press("down")
+                last_action_time = current_time
+                # time.sleep(0.3)
+                # pyautogui.keyUp("down")
+            prev_prediction = prediction
+            # time.sleep(0.1)           
+        elif game == "https://www.abcya.com/games/rainbow_stacker":
+            # Control Dino Game
+            if prediction == "up_nod" and current_time - last_action_time > cooldown:
+                pyautogui.click()
+                last_action_time = current_time
+            elif prediction == "left_nod":
+                pyautogui.press("down")
+                last_action_time = current_time
+            time.sleep(0.1)                                                                                   
 
 except KeyboardInterrupt:
     print("\n🛑 Stopping real-time classification...")
