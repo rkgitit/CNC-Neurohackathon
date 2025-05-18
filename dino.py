@@ -85,7 +85,7 @@ eeg_channels = BoardShim.get_eeg_channels(BoardIds.CYTON_BOARD.value)
 
 try:
     while True:
-        raw_data = board.get_current_board_data(window_size)
+        raw_data = board.get_current_board_data(window_sec)
         eeg_window = raw_data[eeg_channels, :].T
 
         # MATCH TRAINING CONDITIONS:
@@ -93,7 +93,7 @@ try:
         eeg_window = bandpass_filter(eeg_window, fs=sampling_rate)    # Bandpass filter
 
         feats = extract_features(eeg_window)
-        X_live = vec.transform([feats]).toarray()
+        X_live = vec.transform([feats])
         prediction = clf.predict(X_live)[0]
         print("Predicted:", prediction)
 
