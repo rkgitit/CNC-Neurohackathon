@@ -13,8 +13,8 @@ import pyautogui
 from dinowork import launch_game  # Your custom game launcher
 
 # ====== Load & Train Model on Stored EEG Data ======
-X_df = pd.read_csv("eeg_acc_dataset_input.csv")
-y_df = pd.read_csv("eeg_acc_labels.csv")
+X_df = pd.read_csv("eeg_dataset_input2.csv")
+y_df = pd.read_csv("eeg_labels2.csv")
 y = y_df['label'] if 'label' in y_df.columns else y_df.iloc[:, 0]
 
 def extract_features_from_df(X_array):
