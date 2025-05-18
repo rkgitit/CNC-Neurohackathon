@@ -18,31 +18,33 @@ X_df = pd.read_csv("eeg_dataset_input2.csv")
 y_df = pd.read_csv("eeg_labels2.csv")
 y = y_df['label'] if 'label' in y_df.columns else y_df.iloc[:, 0]
 
-def extract_features_from_df(X_array):
-    features_list = []
-    for row in X_array:
-        row_reshaped = row.reshape(-1, 8)  # 8 EEG channels
-        feats = {}
-        for i in range(row_reshaped.shape[1]):
-            ch = row_reshaped[:, i]
-            feats[f'ch{i}_mean'] = np.mean(ch)
-            feats[f'ch{i}_std'] = np.std(ch)
-            feats[f'ch{i}_rms'] = np.sqrt(np.mean(ch**2))
-        features_list.append(feats)
-    return features_list
+# def extract_features_from_df(X_array):
+#     features_list = []
+#     for row in X_array:
+#         row_reshaped = row.reshape(-1, 8)  # 8 EEG channels
+#         feats = {}
+#         for i in range(row_reshaped.shape[1]):
+#             ch = row_reshaped[:, i]
+#             feats[f'ch{i}_mean'] = np.mean(ch)
+#             feats[f'ch{i}_std'] = np.std(ch)
+#             feats[f'ch{i}_rms'] = np.sqrt(np.mean(ch**2))
+#         features_list.append(feats)
+#     return features_list
 
 X_array = X_df.values
-features_dicts = extract_features_from_df(X_array)
+# features_dicts = extract_features_from_df(X_array)
 
 vec = joblib.load('vectorizer.pkl')
-X_vec = vec.transform(features_dicts)
+# X_vec = vec.transform(features_dicts)                                                               
 
 clf = RandomForestClassifier(n_estimators=100, random_state=42)
-X_train, X_test, y_train, y_test = train_test_split(X_vec, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_df, y, test_size=0.2, random_state=42)
 clf.fit(X_train, y_train)
 
 print("\n--- Classifier Evaluation ---")
 print(classification_report(y_test, clf.predict(X_test)))
+
+# clf = joblib.load('mlmodel.pkl')
 
 # ====== Filtering Functions ======
 def butter_bandpass(lowcut, highcut, fs, order=4):
@@ -100,11 +102,11 @@ try:
         if prediction == "up_nod":
             pyautogui.press("space")
         elif prediction == "left_nod":
-            pyautogui.keyDown("down")
-            time.sleep(0.3)
-            pyautogui.keyUp("down")
+            pyautogui.press("down")
+            # time.sleep(0.3)
+            # pyautogui.keyUp("down")
 
-        time.sleep(0.2)
+        time.sleep(0.1)
 
 except KeyboardInterrupt:
     print("\n🛑 Stopping real-time classification...")
