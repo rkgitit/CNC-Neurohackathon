@@ -57,18 +57,18 @@ def bandpass_filter(data, lowcut=0.5, highcut=40.0, fs=250.0, order=4):
 
 # ====== Real-Time Feature Extraction ======
 def extract_features(window):
-    feats = {}
+    feats = {}                                           
     for i in range(window.shape[1]):
-        ch = window[:, i]
-        feats[f'ch{i}_mean'] = np.mean(ch)
+        ch = window[:, i] 
+        feats[f'ch{i}_mean   '] = np.mean(ch)
         feats[f'ch{i}_std'] = np.std(ch)
-        feats[f'ch{i}_rms'] = np.sqrt(np.mean(ch**2))
+        feats[f'ch{i}_rms'] =    np.sqrt(np.mean(ch**2))
     return feats
 
 # ====== BrainFlow Setup ======
 params = BrainFlowInputParams()
-params.serial_port = "COM4"  # ⚠️ Update this to your actual COM port
-board = BoardShim(BoardIds.CYTON_BOARD.v    alue, params)
+params.serial_port = "COM5"  # ⚠ Update this to your actual COM port
+board = BoardShim(BoardIds.CYTON_BOARD.value, params)
 
 board.prepare_session()
 board.start_stream()
@@ -76,7 +76,8 @@ board.start_stream()
 # ======    Dino Game Setup ======
 print("Launching Chrome  game...")
 game = "chrome://dino"
-#launch_gam         e("chrome://dino")
+# game = "https://www.abcya.com/games/rainbow_stacker"
+#launch_game("chrome://dino")
 launch_game(game)
 print("\n🧠 Real-time EEG classification started. Press Ctrl+C to stop.")
 
@@ -101,13 +102,13 @@ try:
         feats = extract_features(eeg_window)
         X_live = vec.transform([feats])
         prediction = clf.predict(X_live)[0]
-        # print("Predicted:", prediction)
+        print("Predicted:", prediction)
         # and current_time - last_action_time > cooldown
 
         current_time = time.time()
         if game == "chrome://dino":
             if (prev_prediction == 'nothing' and prediction == "up_nod"):
-                print("JUMP")
+                # print("JUMP")
                 pyautogui.press("space")
                 last_action_time = current_time
                 # time.sleep(0.1)
@@ -116,8 +117,8 @@ try:
                 last_action_time = current_time
                 # time.sleep(0.3)
                 # pyautogui.keyUp("down")
-            prev_prediction = prediction
-            # time.sleep(0.1)           
+            time.sleep(0.1) 
+            prev_prediction = prediction      
         elif game == "https://www.abcya.com/games/rainbow_stacker":
             # Control Dino Game
             if prediction == "up_nod" and current_time - last_action_time > cooldown:
